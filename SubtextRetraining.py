@@ -147,4 +147,5 @@ def retrain_embeddings(vocab_size, num_steps, num_skips, skip_window, batch_size
 def main(subtext, vocab_size, num_steps, batch_size, num_skips, skip_window):
     datafile = './ReadingSamples_Converted/' + Subtext.to_string(subtext) + str(vocab_size) + '.txt'
     data = open(datafile, mode='r')
-    rt_graph = retrain_embeddings(vocab_size, num_steps, num_skips, skip_window, batch_size, data)
+    new_embed = retrain_embeddings(vocab_size, num_steps, num_skips, skip_window, batch_size, data)
+
