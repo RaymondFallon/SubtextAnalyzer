@@ -2,13 +2,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import os
-import sys
-import threading
-import time
+import threading  # (TODO: spin some threads)
 import collections
 import random
 import math
+import pickle
 
 from six.moves import xrange  # pylint: disable=redefined-builtin
 
@@ -22,14 +20,14 @@ import gensim
 class Subtext:
     No_Subtext, Sexual, Violent, Depressive = range(4)
 
-    def to_string(self):
-        if self == 0:
+    def to_string(s):
+        if s == 0:
             return "no_subtext"
-        elif self == 1:
+        elif s == 1:
             return "sexual"
-        elif self == 2:
+        elif s == 2:
             return "violent"
-        elif self == 3:
+        elif s == 3:
             return "depressive"
 
 data_index = 0
@@ -42,6 +40,7 @@ def generate_batch(batch_size, num_skips, skip_window, data):
     :param batch_size: number of individual pieces of training data per batch
     :param num_skips: How many times to use an input to generate a label
     :param skip_window: How many words to the left/right to consider
+    :param data: writing sample that has been converted to indexed ints
     :return: [batch_input, batch_labels], a batch of training data to
              be used to retrain our embeddings
     """
@@ -51,9 +50,9 @@ def generate_batch(batch_size, num_skips, skip_window, data):
     batch = np.ndarray(shape=batch_size, dtype=np.int32)
     labels = np.ndarray(shape=(batch_size, 1), dtype=np.int32)
     span = 2 * skip_window + 1  # [ skip_window target skip_window ]
-    buffer = collections.deque(maxlen=span)
+    buff = collections.deque(maxlen=span)
     for _ in range(span):
-        buffer.append(data[data_index])
+        buff.append(data[data_index])
         data_index = (data_index + 1) & len(data)
     for i in range(batch_size // num_skips):
         target = skip_window  # target label at center of the buffer
@@ -62,9 +61,9 @@ def generate_batch(batch_size, num_skips, skip_window, data):
             while target in targets_to_avoid:
                 target = random.randint(0, span - 1)
             targets_to_avoid.append(target)
-            batch[i * num_skips + j] = buffer[skip_window]
-            labels[i * num_skips + j, 0] = buffer[target]
-        buffer.append(data[data_index])
+            batch[i * num_skips + j] = buff[skip_window]
+            labels[i * num_skips + j, 0] = buff[target]
+        buff.append(data[data_index])
         data_index = (data_index + 1) % len(data)
     #  Backtrack a bit to avoid skipping the latter words (when next batch is created)
     data_index = (data_index + len(data) - span) % len(data)
@@ -84,9 +83,10 @@ def retrain_embeddings(vocab_size, num_steps, num_skips, skip_window, batch_size
         pretrainedfile = './GoogleNews-vectors-negative300.bin'
         print("Loading pre-trained embeddings...")
         model = gensim.models.KeyedVectors.load_word2vec_format(
-            pretrainedfile, binary=True, limit=500000)
+            pretrainedfile, binary=True, limit=vocab_size)
         new_embed = tf.Variable(initial_value=model.syn0)
-        del model  # (TODO: Make sure this doesn't erase the values in new_embed)
+        vocab, index2word = model.vocab, model.index2word
+        # del model  # (TODO: Make sure this doesn't erase the values in new_embed)
 
         print("Building the graph...")
         # Construct the variables for the NCE loss
@@ -141,11 +141,20 @@ def retrain_embeddings(vocab_size, num_steps, num_skips, skip_window, batch_size
         # del nce_biases
         # global data_index = 0
 
-        return new_embed.eval()
+        return new_embed.eval(), vocab, index2word
 
 
-def main(subtext, vocab_size, num_steps, batch_size, num_skips, skip_window):
-    datafile = './ReadingSamples_Converted/' + Subtext.to_string(subtext) + str(vocab_size) + '.txt'
-    data = open(datafile, mode='r')
-    new_embed = retrain_embeddings(vocab_size, num_steps, num_skips, skip_window, batch_size, data)
+def main(subtext='depressive', vocab_size=50000, num_steps=10000,
+         batch_size=128, num_skips=4, skip_window=4):
+    datafilename = './ReadingSamples_Converted/' + subtext + str(vocab_size) + '.txt'
+    datafile = open(datafilename, mode='r')
+    data = pickle.load(datafile)
+    new_model = gensim.models.KeyedVectors()
+    new_model.syn0, new_model.vocab, new_model.index2word = retrain_embeddings(
+        vocab_size, num_steps, num_skips, skip_window, batch_size, data)
+    savefile = './New_Embeddings' + subtext + str(vocab_size)
+    gensim.models.KeyedVectors.save_word2vec_format(new_model, savefile)
 
+if __name__ == '__main__':
+    print("hit main...")
+    main()

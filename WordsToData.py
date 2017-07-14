@@ -1,7 +1,8 @@
 import gensim
+import pickle
 
 
-vocab_size = 150000
+vocab_size = 50000
 
 dataFile = './ReadingSamples/depressive.txt'
 newFile = './ReadingSamples_Converted/depressive' + str(vocab_size) +'.txt'
@@ -39,10 +40,15 @@ for line in readfile:
             indexedList.append(word2index[w])
         else:
             indexedList.append(0)
+readfile.close()
 
 
 print("Writing indexes to file...")
-writefile.write(str(indexedList))
+pickle.dump(indexedList, writefile)
+# list_as_string = str(indexedList)
+# list_as_string = list_as_string[1:-1] # Clip off the '[' and ']' from string
+# writefile.write(list_as_string)
+writefile.close()
 
 print(len(indexedList))
 print("word2index(The) ", word2index["The"])
@@ -52,6 +58,6 @@ print("word2index(mother) ", word2index["mother"])
 print("word2index(said) ", word2index["said"])
 
 print("number of words: " , len(index2word), len(word2index))
-print("59075: " , index2word[59075])
+print("5975: " , index2word[5975])
 print("1781: " , index2word[1781])
-print("47296: " , index2word[47296])
+print("4796: " , index2word[4796])
