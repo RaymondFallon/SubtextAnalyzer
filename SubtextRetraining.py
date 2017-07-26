@@ -17,18 +17,18 @@ import gensim
 
 # Using a simple class definition for an ENUM of possible subtexts
 # Enum is not available in Python 2.7
-class Subtext:
-    No_Subtext, Sexual, Violent, Depressive = range(4)
-
-    def to_string(s):
-        if s == 0:
-            return "no_subtext"
-        elif s == 1:
-            return "sexual"
-        elif s == 2:
-            return "violent"
-        elif s == 3:
-            return "depressive"
+# class Subtext:
+#     No_Subtext, Sexual, Violent, Depressive = range(4)
+#
+#     def to_string(s):
+#         if s == 0:
+#             return "no_subtext"
+#         elif s == 1:
+#             return "sexual"
+#         elif s == 2:
+#             return "violent"
+#         elif s == 3:
+#             return "depressive"
 
 data_index = 0
 
@@ -144,7 +144,7 @@ def retrain_embeddings(vocab_size, num_steps, num_skips, skip_window, batch_size
         return new_embed.eval(), vocab, index2word
 
 
-def main(subtext='depressive', vocab_size=50000, num_steps=10000,
+def main(subtext='sexual', vocab_size=50000, num_steps=50001,
          batch_size=128, num_skips=4, skip_window=4):
     datafilename = './ReadingSamples_Converted/' + subtext + str(vocab_size) + '.txt'
     datafile = open(datafilename, mode='r')
@@ -152,9 +152,8 @@ def main(subtext='depressive', vocab_size=50000, num_steps=10000,
     new_model = gensim.models.KeyedVectors()
     new_model.syn0, new_model.vocab, new_model.index2word = retrain_embeddings(
         vocab_size, num_steps, num_skips, skip_window, batch_size, data)
-    savefile = './New_Embeddings' + subtext + str(vocab_size)
+    savefile = './New_Embeddings/' + subtext + str(vocab_size)
     gensim.models.KeyedVectors.save_word2vec_format(new_model, savefile)
 
 if __name__ == '__main__':
-    print("hit main...")
     main()

@@ -4,8 +4,12 @@ import pickle
 
 vocab_size = 50000
 
-dataFile = './ReadingSamples/depressive.txt'
-newFile = './ReadingSamples_Converted/depressive' + str(vocab_size) +'.txt'
+subtext = 'no_subtext'
+
+print("Running for ", subtext, " with ", vocab_size, " words.")
+
+dataFile = './ReadingSamples/' + subtext + '.txt'
+newFile = './ReadingSamples_Converted/' + subtext + str(vocab_size) +'.txt'
 
 embedFile = './GoogleNews-vectors-negative300.bin'
 
@@ -34,8 +38,6 @@ for line in readfile:
         w = w.replace('.', '')
         w = w.replace(';', '')
         w = w.replace('"', '')
-        # if idx>65:
-        #     print(w)
         if w in index2word:
             indexedList.append(word2index[w])
         else:
@@ -45,19 +47,6 @@ readfile.close()
 
 print("Writing indexes to file...")
 pickle.dump(indexedList, writefile)
-# list_as_string = str(indexedList)
-# list_as_string = list_as_string[1:-1] # Clip off the '[' and ']' from string
-# writefile.write(list_as_string)
 writefile.close()
 
-print(len(indexedList))
-print("word2index(The) ", word2index["The"])
-print("word2index(the) ", word2index["the"])
-print("word2index(Son) ", word2index["Son"])
-print("word2index(mother) ", word2index["mother"])
-print("word2index(said) ", word2index["said"])
-
-print("number of words: " , len(index2word), len(word2index))
-print("5975: " , index2word[5975])
-print("1781: " , index2word[1781])
-print("4796: " , index2word[4796])
+print("Word Count: ", len(indexedList))
