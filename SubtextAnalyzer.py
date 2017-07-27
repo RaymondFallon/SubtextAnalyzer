@@ -1,9 +1,9 @@
 import gensim
 from scipy import spatial
 
-vocab_size = 50000
-user_input = "Most people don't realize how hard it is to get out of bed in the morning." \
-             "Sometimes I am so sad I can't even stand up."
+vocab_size = 250000
+user_input = "If you really pressed me to come to an answer, it'd be really hard but " \
+             "I'd want to give it to you, so I would say: yes, yes, yes."
 
 filename = './GoogleNews-vectors-negative300.bin'
 # Model is limited to 500,000 words at present due to memory constraints
@@ -21,6 +21,9 @@ for i in range(4):
         st_file, limit=vocab_size)
     print("Loaded.  Running...")
     for word in user_input.split():
+        word = word.replace(",", "")
+        word = word.replace(".", "")
+        word = word.replace(":", "")
         if google_model.vocab.has_key(word):
             dist = spatial.distance.cosine(google_model.word_vec(word),
                                            st_model.word_vec(word))

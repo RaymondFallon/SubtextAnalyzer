@@ -2,9 +2,9 @@ import gensim
 import pickle
 
 
-vocab_size = 50000
+vocab_size = 250000
 
-subtext = 'no_subtext'
+subtext = 'violent'
 
 print("Running for ", subtext, " with ", vocab_size, " words.")
 

@@ -109,8 +109,8 @@ def retrain_embeddings(vocab_size, num_steps, num_skips, skip_window, batch_size
         )
 
         # Construct the SGD optimizer using a learning rate of 1.0.
-        # Should this optimzer be threaded ala word2vec's more advanced self._train ?
-        optimizer = tf.train.GradientDescentOptimizer(1.0).minimize(loss)
+        # Should this optimizer be threaded ala word2vec's more advanced self._train ?
+        optimizer = tf.train.GradientDescentOptimizer(0.1).minimize(loss)
 
         # Add variable initializer.
         init = tf.global_variables_initializer()
@@ -144,14 +144,15 @@ def retrain_embeddings(vocab_size, num_steps, num_skips, skip_window, batch_size
         return new_embed.eval(), vocab, index2word
 
 
-def main(subtext='sexual', vocab_size=50000, num_steps=50001,
-         batch_size=128, num_skips=4, skip_window=4):
+def main(subtext='depressive', vocab_size=250000, num_steps=100001,
+         batch_size=128, num_skips=2, skip_window=2):
     datafilename = './ReadingSamples_Converted/' + subtext + str(vocab_size) + '.txt'
     datafile = open(datafilename, mode='r')
     data = pickle.load(datafile)
     new_model = gensim.models.KeyedVectors()
     new_model.syn0, new_model.vocab, new_model.index2word = retrain_embeddings(
         vocab_size, num_steps, num_skips, skip_window, batch_size, data)
+    print("Retraining complete! Saving new embeddings...")
     savefile = './New_Embeddings/' + subtext + str(vocab_size)
     gensim.models.KeyedVectors.save_word2vec_format(new_model, savefile)
 
