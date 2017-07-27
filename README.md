@@ -1,4 +1,4 @@
-#Subtext Analyzer
+Subtext Analyzer
 
 The `SubtextAnalyzer` module is a program designed to take as input a small sample of 
 English language and decide if it contains any subtext.  At present, there are only 
@@ -37,7 +37,7 @@ original Google-trained form and its new subtext-specific form.  Which-ever subt
 greatest cumulative distance for all the input words is chosen as the subtext of the input
 and is returned as the answer.  
 
-### Confessions and Defense
+#### Confessions and Defense
 As it stands, the program has a rather low success rate.  I believe this is due, in large
 part, to the relatively small sample text I have for each subtext.  The input I used had 
 about 5,000 - 20,000 words per subtext and is pulled from very varied sources. At present, 
