@@ -31,11 +31,11 @@ the file that `WordsToData` has produced.  It uses a [skip-gram](http://mccormic
 ## `SubtextAnalyzer.py`
 Finally, `SubtextAnalyzer` will take a string of English language and break it down into
 individual words.  Then each word will be tested against the original word embeddings and 
-all of the new subtext-specific embeddings.  Specifically, for each word and each subtext,
-we're looking at the cosine-distance between the vector representation of that word in its
-original Google-trained form and its new subtext-specific form.  Which-ever subtext has the
-greatest cumulative distance for all the input words is chosen as the subtext of the input
-and is returned as the answer.  
+all of the new subtext-specific embeddings.  For each word and each subtext, we're looking 
+at the cosine-distance between the vector representation of that word in its original 
+Google-trained form and its new subtext-specific form.  Whichever subtext has the greatest 
+cumulative distance for all the input words is chosen as the subtext of the input and is 
+returned as the answer.  
 
 #### Confessions and Defense
 As it stands, the program has a rather low success rate.  I believe this is due, in large
