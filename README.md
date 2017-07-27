@@ -1,4 +1,4 @@
-Subtext Analyzer
+# Subtext Analyzer
 
 The `SubtextAnalyzer` module is a program designed to take as input a small sample of 
 English language and decide if it contains any subtext.  At present, there are only 
