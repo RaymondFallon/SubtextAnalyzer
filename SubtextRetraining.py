@@ -18,7 +18,6 @@ subtexts = ['no_subtext', 'violent', 'depressive', 'sexual']
 # Function to generate a training batch of data using skim-gram model
 def generate_batch(batch_size, num_skips, skip_window, data):
     """
-
     :param batch_size: number of individual pieces of training data per batch
     :param num_skips: How many times to use an input to generate a label
     :param skip_window: How many words to the left/right to consider
@@ -52,6 +51,17 @@ def generate_batch(batch_size, num_skips, skip_window, data):
     return batch, labels
 
 def retrain_embeddings(vocab_size, num_steps, num_skips, skip_window, batch_size, data, embed_size=300, num_sampled=32):
+    """
+    :param vocab_size: how many words in our vocabulary
+    :param num_steps: number of training steps to be run
+    :param num_skips: How many times to use an input to generate a label
+    :param skip_window: How many words to the left/right to consider
+    :param batch_size: number of individual pieces of training data per batch
+    :param data: writing sample that has been converted to indexed ints
+    :param embed_size: dimensionality of our embedding
+    :param num_sampled: The number of words to randomly sample per batch
+    :return: new_embeddings, vocab, index2word
+    """
     global data_index
     rt_graph = tf.Graph()
     with rt_graph.as_default():
@@ -110,9 +120,7 @@ def retrain_embeddings(vocab_size, num_steps, num_skips, skip_window, batch_size
                     avg_loss /= 2000
                 # Average Loss is the average of the loss at each of the last 2000 steps
                 print("Average Loss at step ", step, " is: ", avg_loss)
-
         data_index = 0
-
         return new_embed.eval(), vocab, index2word
 
 

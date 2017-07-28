@@ -15,7 +15,10 @@ subtexts = ["no_subtext", "violent", "depressive", "sexual"]
 distances = [0, 0, 0, 0]
 
 for i in range(4):
-    print("Loading ", subtexts[i])
+    if i == 0:
+        print("Analyzing your language...")
+    else:
+        print("Checking for any " + subtexts[i] + " subtext...")
     st_file = './New_Embeddings/' + subtexts[i] + str(vocab_size)
     st_model = gensim.models.KeyedVectors.load_word2vec_format(
         st_file, limit=vocab_size)
@@ -25,8 +28,6 @@ for i in range(4):
             dist = spatial.distance.cosine(google_model.word_vec(word),
                                            st_model.word_vec(word))
             distances[i] += abs(dist)
-            print(word, ": ", dist)
-print(distances)
 ans = 3
 for i in range(3):
     if distances[i] > distances[ans]:

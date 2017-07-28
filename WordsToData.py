@@ -2,7 +2,6 @@ import gensim
 import pickle
 import re
 
-
 vocab_size = 50000
 
 embedFile = './GoogleNews-vectors-negative300.bin'
@@ -44,3 +43,4 @@ for i in range(len(subtexts)):
     pickle.dump(indexedList, writefile)
     writefile.close()
     print("Word Count: ", len(indexedList))
+print("All files written!")
