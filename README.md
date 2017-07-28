@@ -39,9 +39,9 @@ returned as the answer.
 
 #### Confessions and Defense
 As it stands, the program has a rather low success rate.  I believe this is due, in large
-part, to the relatively small sample text I have for each subtext.  The input I used had 
-about 5,000 - 20,000 words per subtext and is pulled from very varied sources. At present, 
-the results are based more on the principle of "was this word ever re-trained for this
-subtext? If so, then the co-sine distance is quite large."  For `SubtextAnaylzer` to work 
-properly, the question needs to be "<i>when</i> this word was retrained for this particular
-subtext, how different did it become from its original embedding?"  
+part, to the relatively small sample text I have for each subtext.  The inputs I am using 
+have about 5,000 - 20,000 words per subtext and is pulled from very varied sources. At 
+present, the results are based more on the principle of "was this word ever re-trained for 
+this subtext? If so, then the co-sine distance is quite large."  For `SubtextAnaylzer` to 
+work properly, the question needs to be: "<i>when</i> this word was retrained for this 
+particular subtext, how different did it become from its original embedding?"  
