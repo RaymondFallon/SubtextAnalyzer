@@ -2,38 +2,20 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import threading  # (TODO: spin some threads)
 import collections
 import random
 import math
 import pickle
-
 from six.moves import xrange  # pylint: disable=redefined-builtin
 
 import numpy as np
 import tensorflow as tf
 import gensim
 
-
-# Using a simple class definition for an ENUM of possible subtexts
-# Enum is not available in Python 2.7
-# class Subtext:
-#     No_Subtext, Sexual, Violent, Depressive = range(4)
-#
-#     def to_string(s):
-#         if s == 0:
-#             return "no_subtext"
-#         elif s == 1:
-#             return "sexual"
-#         elif s == 2:
-#             return "violent"
-#         elif s == 3:
-#             return "depressive"
-
 data_index = 0
+subtexts = ['no_subtext', 'violent', 'depressive', 'sexual']
 
-
-# Create a function to generate a training batch of data using skim-gram model
+# Function to generate a training batch of data using skim-gram model
 def generate_batch(batch_size, num_skips, skip_window, data):
     """
 
@@ -69,8 +51,8 @@ def generate_batch(batch_size, num_skips, skip_window, data):
     data_index = (data_index + len(data) - span) % len(data)
     return batch, labels
 
-
 def retrain_embeddings(vocab_size, num_steps, num_skips, skip_window, batch_size, data, embed_size=300, num_sampled=32):
+    global data_index
     rt_graph = tf.Graph()
     with rt_graph.as_default():
         # Input data.
@@ -78,15 +60,12 @@ def retrain_embeddings(vocab_size, num_steps, num_skips, skip_window, batch_size
         train_labels = tf.placeholder(tf.int32, shape=[batch_size, 1])
 
         # Aquire the word embeddings that are to be retrained
-        # Model is limited to 500,000 words at present due to (my comp's) memory constraints
-        # This should be properly run with no limit
         pretrainedfile = './GoogleNews-vectors-negative300.bin'
         print("Loading pre-trained embeddings...")
         model = gensim.models.KeyedVectors.load_word2vec_format(
             pretrainedfile, binary=True, limit=vocab_size)
         new_embed = tf.Variable(initial_value=model.syn0)
         vocab, index2word = model.vocab, model.index2word
-        # del model  # (TODO: Make sure this doesn't erase the values in new_embed)
 
         print("Building the graph...")
         # Construct the variables for the NCE loss
@@ -108,21 +87,16 @@ def retrain_embeddings(vocab_size, num_steps, num_skips, skip_window, batch_size
             )
         )
 
-        # Construct the SGD optimizer using a learning rate of 1.0.
-        # Should this optimizer be threaded ala word2vec's more advanced self._train ?
+        # Construct the SGD optimizer using a learning rate of 0.1.
         optimizer = tf.train.GradientDescentOptimizer(0.1).minimize(loss)
 
         # Add variable initializer.
         init = tf.global_variables_initializer()
-        #  return rt_graph
 
-# def retrain_embeddings(rt_graph, num_skips, skip_window, batch_size):
-#     # TODO: create this from SubtextAnalyzer's graph training
     with tf.Session(graph=rt_graph) as session:
         init.run()
-        print("Vars Initialized!")
+        print("Variables Initialized!")
         avg_loss = 0
-
         for step in xrange(num_steps):
             batch_input, batch_labels = generate_batch(
                 batch_size, num_skips, skip_window, data)
@@ -136,25 +110,24 @@ def retrain_embeddings(vocab_size, num_steps, num_skips, skip_window, batch_size
                     avg_loss /= 2000
                 # Average Loss is the average of the loss at each of the last 2000 steps
                 print("Average Loss at step ", step, " is: ", avg_loss)
-        # BE SURE TO INCLUDE DELETE STATEMENTS FOR *all* vars WHOSE JOB IS DONE
-        # del nce_weights
-        # del nce_biases
-        # global data_index = 0
+
+        data_index = 0
 
         return new_embed.eval(), vocab, index2word
 
 
-def main(subtext='depressive', vocab_size=250000, num_steps=100001,
+def main(vocab_size=50000, num_steps=100001,
          batch_size=128, num_skips=2, skip_window=2):
-    datafilename = './ReadingSamples_Converted/' + subtext + str(vocab_size) + '.txt'
-    datafile = open(datafilename, mode='r')
-    data = pickle.load(datafile)
-    new_model = gensim.models.KeyedVectors()
-    new_model.syn0, new_model.vocab, new_model.index2word = retrain_embeddings(
-        vocab_size, num_steps, num_skips, skip_window, batch_size, data)
-    print("Retraining complete! Saving new embeddings...")
-    savefile = './New_Embeddings/' + subtext + str(vocab_size)
-    gensim.models.KeyedVectors.save_word2vec_format(new_model, savefile)
+    for subtext in subtexts:
+        datafile_name = './ReadingSamples_Converted/' + subtext + str(vocab_size) + '.txt'
+        datafile = open(datafile_name, mode='r')
+        data = pickle.load(datafile)
+        new_model = gensim.models.KeyedVectors()
+        new_model.syn0, new_model.vocab, new_model.index2word = retrain_embeddings(
+            vocab_size, num_steps, num_skips, skip_window, batch_size, data)
+        print("Retraining complete! Saving new embeddings...")
+        savefile = './New_Embeddings/' + subtext + str(vocab_size)
+        gensim.models.KeyedVectors.save_word2vec_format(new_model, savefile)
 
 if __name__ == '__main__':
     main()
